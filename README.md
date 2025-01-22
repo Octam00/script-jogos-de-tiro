@@ -1,3 +1,6 @@
+n.Recoil.Value = 0
+        end
+    end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("User InputService")
@@ -25,6 +28,7 @@ Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BackgroundTransparency = 0.2
 Frame.BorderSizePixel = 0
+Frame.Visible = PanelVisible -- Inicialmente visível
 Frame.Parent = ScreenGui
 
 local function createToggle(yOffset, label, callback)
@@ -222,4 +226,4 @@ RunService.RenderStepped:Connect(function()
             gun.Recoil.Value = 0
         end
     end
-end)
+end)end)
