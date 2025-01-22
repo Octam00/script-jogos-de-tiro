@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local UserInputService = game:GetService("User InputService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -20,12 +20,22 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game.CoreGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 250, 0, 250)
+Frame.Size = UDim2.new(0, 300, 0, 300)
 Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BackgroundTransparency = 0.2
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BackgroundTransparency = 0.5
 Frame.BorderSizePixel = 0
 Frame.Parent = ScreenGui
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.Text = "Painel de Controle"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = Frame
 
 local function createToggle(yOffset, label, callback)
     local toggleFrame = Instance.new("Frame")
@@ -42,13 +52,13 @@ local function createToggle(yOffset, label, callback)
     toggleButton.Parent = toggleFrame
 
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0, 100, 0, 25)
+    textLabel.Size = UDim2.new(0, 150, 0, 25)
     textLabel.Position = UDim2.new(0, 10, 0, yOffset)
     textLabel.Text = label
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.BackgroundTransparency = 1
     textLabel.TextSize = 16
-    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.Font = Enum.Font.SourceSans
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.Parent = Frame
 
@@ -69,11 +79,11 @@ local function createToggle(yOffset, label, callback)
     end)
 end
 
-createToggle(20, "ESP", function(state) ESPEnabled = state end)
-createToggle(60, "Aimbot", function(state) AimbotEnabled = state end)
-createToggle(100, "No Recoil", function(state) NoRecoilEnabled = state end)
-createToggle(140, "FOV", function(state) FOVSize = state and 150 or 0 end)
-createToggle(180, "Anti-Lag", function(state) 
+createToggle(40, "ESP", function(state) ESPEnabled = state end)
+createToggle(80, "Aimbot", function(state) AimbotEnabled = state end)
+createToggle(120, "No Recoil", function(state) NoRecoilEnabled = state end)
+createToggle(160, "FOV", function(state) FOVSize = state and 150 or 0 end)
+createToggle(200, "Anti-Lag", function(state) 
     AntiLagEnabled = state
     if AntiLagEnabled then
         for _, obj in pairs(workspace:GetDescendants()) do
@@ -90,7 +100,7 @@ createToggle(180, "Anti-Lag", function(state)
 end)
 
 -- Toggle do painel com a tecla Insert
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
+User InputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
         PanelVisible = not PanelVisible
         Frame.Visible = PanelVisible
