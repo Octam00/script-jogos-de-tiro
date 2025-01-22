@@ -5,205 +5,140 @@ local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local ESPs = {}
-local ESPEnabled = false
-local AimbotEnabled = false
-local NoRecoilEnabled = false
+-- Variáveis do script
+local ESPEnabled = true
+local AimbotEnabled = true
+local NoRecoilEnabled = true
 local FOVSize = 150
 local AimSmoothness = 5
-local AntiLagEnabled = false
-local SkyRemoved = false
 local PanelVisible = true
 
--- Criar GUI do Painel Futurista
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
+-- Criar GUI do Painel
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 300, 0, 350)
+MainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Visible = true
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 350, 0, 400)
-Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-Frame.BackgroundTransparency = 0.1
-Frame.BorderSizePixel = 0
-Frame.BorderRadius = UDim.new(0, 10) -- Bordas arredondadas
-Frame.Parent = ScreenGui
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 10)
 
-local function createToggle(yOffset, label, callback)
-    local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(0, 100, 0, 30)
-    toggleFrame.Position = UDim2.new(0.5, -50, 0, yOffset)
-    toggleFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    toggleFrame.BorderSizePixel = 0
-    toggleFrame.BorderRadius = UDim.new(0, 8) -- Bordas arredondadas
-    toggleFrame.Parent = Frame
+-- Título do painel
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.BackgroundTransparency = 1
+Title.Text = "Painel Futurista"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-    local toggleButton = Instance.new("Frame")
-    toggleButton.Size = UDim2.new(0, 20, 0, 20)
-    toggleButton.Position = UDim2.new(0, 2, 0, 2)
-    toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    toggleButton.BorderRadius = UDim.new(0, 6) -- Bordas arredondadas para o botão
-    toggleButton.Parent = toggleFrame
+-- Botões para alternar abas
+local TabFrame = Instance.new("Frame", MainFrame)
+TabFrame.Size = UDim2.new(1, 0, 0, 40)
+TabFrame.Position = UDim2.new(0, 0, 0, 50)
+TabFrame.BackgroundTransparency = 1
 
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0, 200, 0, 30)
-    textLabel.Position = UDim2.new(0, 10, 0, yOffset)
-    textLabel.Text = label
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextSize = 16
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextXAlignment = Enum.TextXAlignment.Left
-    textLabel.Parent = Frame
+local MainTabButton = Instance.new("TextButton", TabFrame)
+MainTabButton.Size = UDim2.new(0.5, -5, 1, 0)
+MainTabButton.Position = UDim2.new(0, 0, 0, 0)
+MainTabButton.Text = "Configurações"
+MainTabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MainTabButton.Font = Enum.Font.Gotham
+MainTabButton.TextSize = 14
+MainTabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local CreditsTabButton = Instance.new("TextButton", TabFrame)
+CreditsTabButton.Size = UDim2.new(0.5, -5, 1, 0)
+CreditsTabButton.Position = UDim2.new(0.5, 5, 0, 0)
+CreditsTabButton.Text = "Créditos"
+CreditsTabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+CreditsTabButton.Font = Enum.Font.Gotham
+CreditsTabButton.TextSize = 14
+CreditsTabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Aba principal (Configurações)
+local MainTab = Instance.new("Frame", MainFrame)
+MainTab.Size = UDim2.new(1, 0, 1, -90)
+MainTab.Position = UDim2.new(0, 0, 0, 90)
+MainTab.BackgroundTransparency = 1
+MainTab.Visible = true
+
+local function createToggle(label, yOffset, callback)
+    local ToggleFrame = Instance.new("Frame", MainTab)
+    ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
+    ToggleFrame.Position = UDim2.new(0, 10, 0, yOffset)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
+    local UICorner = Instance.new("UICorner", ToggleFrame)
+    UICorner.CornerRadius = UDim.new(0, 8)
+
+    local ToggleLabel = Instance.new("TextLabel", ToggleFrame)
+    ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    ToggleLabel.Position = UDim2.new(0, 10, 0, 0)
+    ToggleLabel.Text = label
+    ToggleLabel.Font = Enum.Font.Gotham
+    ToggleLabel.TextSize = 16
+    ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleLabel.BackgroundTransparency = 1
+
+    local ToggleButton = Instance.new("TextButton", ToggleFrame)
+    ToggleButton.Size = UDim2.new(0.2, 0, 0.8, 0)
+    ToggleButton.Position = UDim2.new(0.75, 0, 0.1, 0)
+    ToggleButton.Text = "Off"
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    ToggleButton.Font = Enum.Font.GothamBold
+    ToggleButton.TextSize = 14
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
     local isActive = false
-
-    toggleFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isActive = not isActive
-            if isActive then
-                toggleButton:TweenPosition(UDim2.new(1, -22, 0, 2), "Out", "Sine", 0.2, true)
-                toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            else
-                toggleButton:TweenPosition(UDim2.new(0, 2, 0, 2), "Out", "Sine", 0.2, true)
-                toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-            end
-            callback(isActive)
-        end
+    ToggleButton.MouseButton1Click:Connect(function()
+        isActive = not isActive
+        ToggleButton.Text = isActive and "On" or "Off"
+        ToggleButton.BackgroundColor3 = isActive and Color3.fromRGB(0, 100, 0) or Color3.fromRGB(100, 0, 0)
+        callback(isActive)
     end)
 end
 
-createToggle(20, "ESP", function(state) ESPEnabled = state end)
-createToggle(60, "Aimbot", function(state) AimbotEnabled = state end)
-createToggle(100, "No Recoil", function(state) NoRecoilEnabled = state end)
-createToggle(140, "FOV", function(state) FOVSize = state and 150 or 0 end)
-createToggle(180, "Anti-Lag", function(state) AntiLagEnabled = state end)
+createToggle("ESP", 0, function(state) ESPEnabled = state end)
+createToggle("Aimbot", 50, function(state) AimbotEnabled = state end)
+createToggle("No Recoil", 100, function(state) NoRecoilEnabled = state end)
 
--- Aba de Créditos
-local CreditsButton = Instance.new("TextButton")
-CreditsButton.Size = UDim2.new(0, 100, 0, 30)
-CreditsButton.Position = UDim2.new(0.5, -50, 0, 280)
-CreditsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-CreditsButton.Text = "Créditos"
-CreditsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CreditsButton.Font = Enum.Font.SourceSansBold
-CreditsButton.TextSize = 16
-CreditsButton.BorderSizePixel = 0
-CreditsButton.BorderRadius = UDim.new(0, 8)
-CreditsButton.Parent = Frame
+-- Aba de créditos
+local CreditsTab = Instance.new("Frame", MainFrame)
+CreditsTab.Size = UDim2.new(1, 0, 1, -90)
+CreditsTab.Position = UDim2.new(0, 0, 0, 90)
+CreditsTab.BackgroundTransparency = 1
+CreditsTab.Visible = false
 
-local CreditsFrame = Instance.new("Frame")
-CreditsFrame.Size = UDim2.new(0, 300, 0, 150)
-CreditsFrame.Position = UDim2.new(0.5, -150, 0, 100)
-CreditsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-CreditsFrame.Visible = false
-CreditsFrame.BorderSizePixel = 0
-CreditsFrame.BorderRadius = UDim.new(0, 10)
-CreditsFrame.Parent = ScreenGui
-
-local CreditsText = Instance.new("TextLabel")
-CreditsText.Size = UDim2.new(0, 280, 0, 140)
+local CreditsText = Instance.new("TextLabel", CreditsTab)
+CreditsText.Size = UDim2.new(1, -20, 1, -20)
 CreditsText.Position = UDim2.new(0, 10, 0, 10)
-CreditsText.Text = "Script feito por: \nSeu Nome Aqui \nVersão: 1.0\n\nEspecial agradecimento ao desenvolvedor XYZ."
-CreditsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsText.Text = "Script feito por Octam\nObrigado por usar!"
+CreditsText.Font = Enum.Font.Gotham
 CreditsText.TextSize = 16
-CreditsText.Font = Enum.Font.SourceSans
-CreditsText.TextWrapped = true
+CreditsText.TextColor3 = Color3.fromRGB(255, 255, 255)
 CreditsText.BackgroundTransparency = 1
-CreditsText.Parent = CreditsFrame
+CreditsText.TextWrapped = true
 
-CreditsButton.MouseButton1Click:Connect(function()
-    CreditsFrame.Visible = not CreditsFrame.Visible
+-- Alternar abas
+MainTabButton.MouseButton1Click:Connect(function()
+    MainTab.Visible = true
+    CreditsTab.Visible = false
 end)
 
--- Criar ESP
-local function CreateESP(player)
-    if player == LocalPlayer or ESPs[player] then return end
-
-    local highlight = Instance.new("Highlight")
-    highlight.FillColor = Color3.fromRGB(255, 0, 0)
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    
-    player.CharacterAdded:Connect(function(char)
-        highlight.Parent = char
-    end)
-    
-    if player.Character then
-        highlight.Parent = player.Character
-    end
-
-    ESPs[player] = highlight
-end
-
-local function UpdateESP()
-    if not ESPEnabled then return end
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            if not ESPs[player] then
-                CreateESP(player)
-            end
-        end
-    end
-end
-
-local function GetClosestPlayer()
-    local closestPlayer = nil
-    local shortestDistance = FOVSize
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local RootPart = player.Character.HumanoidRootPart
-            local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(RootPart.Position)
-
-            if OnScreen then
-                local MousePos = UserInputService:GetMouseLocation()
-                local Distance = (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePos).Magnitude
-
-                if Distance < shortestDistance then
-                    closestPlayer = RootPart
-                    shortestDistance = Distance
-                end
-            end
-        end
-    end
-    return closestPlayer
-end
-
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Color = Color3.fromRGB(255, 0, 0)
-FOVCircle.Thickness = 2
-FOVCircle.Filled = false
-FOVCircle.Visible = false
-
-local function UpdateFOV()
-    if FOVSize > 0 then
-        local MousePosition = UserInputService:GetMouseLocation()
-        FOVCircle.Position = Vector2.new(MousePosition.X, MousePosition.Y)
-        FOVCircle.Radius = FOVSize
-        FOVCircle.Visible = true
-    else
-        FOVCircle.Visible = false
-    end
-end
-
-RunService.RenderStepped:Connect(function()
-    UpdateFOV()
-    UpdateESP()
-
-    if AimbotEnabled and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-        local target = GetClosestPlayer()
-        if target then
-            local targetPos = target.Position + Vector3.new(0, 1.5, 0)
-            local newCFrame = CFrame.new(Camera.CFrame.Position, targetPos)
-            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, 0.1 * AimSmoothness)
-        end
-    end
+CreditsTabButton.MouseButton1Click:Connect(function()
+    MainTab.Visible = false
+    CreditsTab.Visible = true
 end)
 
+-- Toggle do painel com a tecla Insert
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
         PanelVisible = not PanelVisible
-        Frame.Visible = PanelVisible
+        MainFrame.Visible = PanelVisible
     end
 end)
