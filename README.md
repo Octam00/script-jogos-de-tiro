@@ -6,9 +6,9 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local ESPs = {}
-local ESPEnabled = true
-local AimbotEnabled = true
-local NoRecoilEnabled = true
+local ESPEnabled = false
+local AimbotEnabled = false
+local NoRecoilEnabled = false
 local FOVSize = 150
 local AimSmoothness = 5
 local AntiLagEnabled = false
@@ -20,29 +20,32 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game.CoreGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 250, 0, 250)
+Frame.Size = UDim2.new(0, 350, 0, 400)
 Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BackgroundTransparency = 0.2
+Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Frame.BackgroundTransparency = 0.1
 Frame.BorderSizePixel = 0
+Frame.BorderRadius = UDim.new(0, 10) -- Bordas arredondadas
 Frame.Parent = ScreenGui
 
 local function createToggle(yOffset, label, callback)
     local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(0, 50, 0, 25)
-    toggleFrame.Position = UDim2.new(0.75, -25, 0, yOffset)
-    toggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    toggleFrame.Size = UDim2.new(0, 100, 0, 30)
+    toggleFrame.Position = UDim2.new(0.5, -50, 0, yOffset)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     toggleFrame.BorderSizePixel = 0
+    toggleFrame.BorderRadius = UDim.new(0, 8) -- Bordas arredondadas
     toggleFrame.Parent = Frame
 
     local toggleButton = Instance.new("Frame")
     toggleButton.Size = UDim2.new(0, 20, 0, 20)
     toggleButton.Position = UDim2.new(0, 2, 0, 2)
     toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    toggleButton.BorderRadius = UDim.new(0, 6) -- Bordas arredondadas para o botão
     toggleButton.Parent = toggleFrame
 
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0, 100, 0, 25)
+    textLabel.Size = UDim2.new(0, 200, 0, 30)
     textLabel.Position = UDim2.new(0, 10, 0, yOffset)
     textLabel.Text = label
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -73,44 +76,43 @@ createToggle(20, "ESP", function(state) ESPEnabled = state end)
 createToggle(60, "Aimbot", function(state) AimbotEnabled = state end)
 createToggle(100, "No Recoil", function(state) NoRecoilEnabled = state end)
 createToggle(140, "FOV", function(state) FOVSize = state and 150 or 0 end)
-createToggle(180, "Anti-Lag", function(state) 
-    AntiLagEnabled = state
-    if AntiLagEnabled then
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("Texture") or obj:IsA("Decal") then
-                obj:Destroy()
-            end
-        end
-        if not SkyRemoved and Lighting:FindFirstChildOfClass("Sky") then
-            Lighting:FindFirstChildOfClass("Sky"):Destroy()
-            SkyRemoved = true
-        end
-        Lighting.Ambient = Color3.new(0, 0, 0)
-    end
-end)
+createToggle(180, "Anti-Lag", function(state) AntiLagEnabled = state end)
 
--- Toggle do painel com a tecla Insert
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
-        PanelVisible = not PanelVisible
-        Frame.Visible = PanelVisible
-    end
-end)
+-- Aba de Créditos
+local CreditsButton = Instance.new("TextButton")
+CreditsButton.Size = UDim2.new(0, 100, 0, 30)
+CreditsButton.Position = UDim2.new(0.5, -50, 0, 280)
+CreditsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+CreditsButton.Text = "Créditos"
+CreditsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsButton.Font = Enum.Font.SourceSansBold
+CreditsButton.TextSize = 16
+CreditsButton.BorderSizePixel = 0
+CreditsButton.BorderRadius = UDim.new(0, 8)
+CreditsButton.Parent = Frame
 
--- Criar FOV visível
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Color = Color3.fromRGB(255, 255, 255)
-FOVCircle.Thickness = 1
-FOVCircle.NumSides = 50
-FOVCircle.Radius = FOVSize
-FOVCircle.Filled = false
-FOVCircle.Visible = true
+local CreditsFrame = Instance.new("Frame")
+CreditsFrame.Size = UDim2.new(0, 300, 0, 150)
+CreditsFrame.Position = UDim2.new(0.5, -150, 0, 100)
+CreditsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CreditsFrame.Visible = false
+CreditsFrame.BorderSizePixel = 0
+CreditsFrame.BorderRadius = UDim.new(0, 10)
+CreditsFrame.Parent = ScreenGui
 
-RunService.RenderStepped:Connect(function()
-    local MousePos = UserInputService:GetMouseLocation()
-    FOVCircle.Position = MousePos
-    FOVCircle.Radius = FOVSize
-    FOVCircle.Visible = (FOVSize > 0)
+local CreditsText = Instance.new("TextLabel")
+CreditsText.Size = UDim2.new(0, 280, 0, 140)
+CreditsText.Position = UDim2.new(0, 10, 0, 10)
+CreditsText.Text = "Script feito por: \nSeu Nome Aqui \nVersão: 1.0\n\nEspecial agradecimento ao desenvolvedor XYZ."
+CreditsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsText.TextSize = 16
+CreditsText.Font = Enum.Font.SourceSans
+CreditsText.TextWrapped = true
+CreditsText.BackgroundTransparency = 1
+CreditsText.Parent = CreditsFrame
+
+CreditsButton.MouseButton1Click:Connect(function()
+    CreditsFrame.Visible = not CreditsFrame.Visible
 end)
 
 -- Criar ESP
@@ -145,25 +147,22 @@ local function UpdateESP()
     end
 end
 
--- Melhor Aimbot
 local function GetClosestPlayer()
     local closestPlayer = nil
     local shortestDistance = FOVSize
 
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local Head = player.Character:FindFirstChild("Head")
-            if Head then
-                local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Head.Position)
+            local RootPart = player.Character.HumanoidRootPart
+            local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(RootPart.Position)
 
-                if OnScreen then
-                    local MousePos = UserInputService:GetMouseLocation()
-                    local Distance = (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePos).Magnitude
+            if OnScreen then
+                local MousePos = UserInputService:GetMouseLocation()
+                local Distance = (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePos).Magnitude
 
-                    if Distance < shortestDistance then
-                        closestPlayer = Head.Position
-                        shortestDistance = Distance
-                    end
+                if Distance < shortestDistance then
+                    closestPlayer = RootPart
+                    shortestDistance = Distance
                 end
             end
         end
@@ -171,25 +170,40 @@ local function GetClosestPlayer()
     return closestPlayer
 end
 
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Color = Color3.fromRGB(255, 0, 0)
+FOVCircle.Thickness = 2
+FOVCircle.Filled = false
+FOVCircle.Visible = false
+
+local function UpdateFOV()
+    if FOVSize > 0 then
+        local MousePosition = UserInputService:GetMouseLocation()
+        FOVCircle.Position = Vector2.new(MousePosition.X, MousePosition.Y)
+        FOVCircle.Radius = FOVSize
+        FOVCircle.Visible = true
+    else
+        FOVCircle.Visible = false
+    end
+end
+
 RunService.RenderStepped:Connect(function()
+    UpdateFOV()
     UpdateESP()
 
     if AimbotEnabled and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-        local targetPos = GetClosestPlayer()
-        if targetPos then
+        local target = GetClosestPlayer()
+        if target then
+            local targetPos = target.Position + Vector3.new(0, 1.5, 0)
             local newCFrame = CFrame.new(Camera.CFrame.Position, targetPos)
-            local lerpSpeed = math.clamp(0.2 * AimSmoothness, 0.05, 0.7)
-            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, lerpSpeed)
+            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, 0.1 * AimSmoothness)
         end
     end
 end)
 
--- No Recoil
-RunService.RenderStepped:Connect(function()
-    if NoRecoilEnabled then
-        local gun = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-        if gun and gun:FindFirstChild("Recoil") then
-            gun.Recoil.Value = 0
-        end
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
+        PanelVisible = not PanelVisible
+        Frame.Visible = PanelVisible
     end
 end)
