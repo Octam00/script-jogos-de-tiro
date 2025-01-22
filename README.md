@@ -1,9 +1,6 @@
-n.Recoil.Value = 0
-        end
-    end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("User InputService")
+local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -28,7 +25,6 @@ Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BackgroundTransparency = 0.2
 Frame.BorderSizePixel = 0
-Frame.Visible = PanelVisible -- Inicialmente visível
 Frame.Parent = ScreenGui
 
 local function createToggle(yOffset, label, callback)
@@ -73,7 +69,6 @@ local function createToggle(yOffset, label, callback)
     end)
 end
 
--- Criar botões organizados
 createToggle(20, "ESP", function(state) ESPEnabled = state end)
 createToggle(60, "Aimbot", function(state) AimbotEnabled = state end)
 createToggle(100, "No Recoil", function(state) NoRecoilEnabled = state end)
@@ -95,7 +90,7 @@ createToggle(180, "Anti-Lag", function(state)
 end)
 
 -- Toggle do painel com a tecla Insert
-User InputService.InputBegan:Connect(function(input, gameProcessed)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
         PanelVisible = not PanelVisible
         Frame.Visible = PanelVisible
@@ -118,66 +113,35 @@ RunService.RenderStepped:Connect(function()
     FOVCircle.Visible = (FOVSize > 0)
 end)
 
--- Função para criar o ESP
-local function createESP(player)
-    -- Verificar se o jogador tem um personagem
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        -- Aguardar o carregamento completo do personagem
-        player.CharacterAdded:Wait()
+-- Criar ESP
+local function CreateESP(player)
+    if player == LocalPlayer or ESPs[player] then return end
 
-        local Folder = Instance.new("Folder", player.Character)
-        Folder.Name = player.Name .. "'s ESP"
-
-        -- Função para atualizar a cor do ESP
-        local function updateESPColor()
-            local teamColor = (player.Team ~= LocalPlayer.Team) and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
-
-            -- Criar o ESP para partes do personagem
-            for _, part in ipairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
-                local partObj = player.Character:FindFirstChild(part)
-                if partObj then
-                    local adornment = Instance.new("BoxHandleAdornment")
-                    adornment.Adornee = partObj
-                    adornment.AlwaysOnTop = true
-                    adornment.ZIndex = 1
-                    adornment.Size = partObj.Size + Vector3.new(0.1, 0.1, 0.1)  -- Ajustar um pouco para tornar visível
-                    adornment.Color3 = teamColor
-                    adornment.Transparency = 0.5
-                    adornment.Parent = Folder
-                end
-            end
-        end
-
-        -- Atualiza a cor do ESP sempre que mudar de equipe
-        player:GetPropertyChangedSignal("Team"):Connect(updateESPColor)
-
-        -- Atualizar a cor do ESP sempre que o personagem for carregado
-        updateESPColor()
-
-        -- Remover o ESP quando o personagem for removido
-        player.CharacterRemoving:Connect(function(character)
-            local espFolder = character:FindFirstChild(player.Name .. "'s ESP")
-            if espFolder then
-                espFolder:Destroy()
-            end
-        end)
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    
+    player.CharacterAdded:Connect(function(char)
+        highlight.Parent = char
+    end)
+    
+    if player.Character then
+        highlight.Parent = player.Character
     end
+
+    ESPs[player] = highlight
 end
 
--- Monitorar novos jogadores e criar o ESP
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        createESP(player)
-    end)
-end)
+local function UpdateESP()
+    if not ESPEnabled then return end
 
--- Criar ESP para jogadores que já estão no jogo
-for _, player in pairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function(character)
-            createESP(player)
-        end)
-        createESP(player) -- Chame createESP para jogadores que já estão no jogo
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            if not ESPs[player] then
+                CreateESP(player)
+            end
+        end
     end
 end
 
@@ -208,6 +172,8 @@ local function GetClosestPlayer()
 end
 
 RunService.RenderStepped:Connect(function()
+    UpdateESP()
+
     if AimbotEnabled and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
         local targetPos = GetClosestPlayer()
         if targetPos then
@@ -226,4 +192,4 @@ RunService.RenderStepped:Connect(function()
             gun.Recoil.Value = 0
         end
     end
-end)end)
+end)
